@@ -1,0 +1,28 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]          # main에 머지되면 → 개발서버 자동 배포
+  workflow_dispatch:          # 수동 실행 → 운영 배포 (정기/긴급)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "빌드 (테스트용)"
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: development   # Jira 배포 탭에 '개발' 환경으로 표시
+    steps:
+      - run: echo "개발서버 배포 (테스트용)"
+
+  deploy-prod:
+    needs: deploy-dev
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production    # Jira 배포 탭에 '운영' 환경으로 표시
+    steps:
+      - run: echo "운영 배포 (테스트용)"
